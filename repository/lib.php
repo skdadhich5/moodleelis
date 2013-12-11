@@ -2845,6 +2845,54 @@ abstract class repository implements cacheable_object {
         return serialize($sourcefield);
     }
 
+    // RL EDIT
+    /**
+     * static method to include required CSS classes for filemanager/picker
+     * mainly for Chrome/Chromium
+     * @param object $page Optional page object, defaults to $PAGE
+     * @uses  $CFG
+     * @uses  $PAGE
+     */
+    public static function include_fmfp_css($page = null) {
+        global   $CFG, $PAGE;
+        static   $init = false;
+        if ($init) {
+            return;
+        }
+        $init = true;
+        $req_css = array(
+                '/lib/yuilib/3.9.1/build/panel/assets/panel-core.css',
+                '/lib/yuilib/3.9.1/build/panel/assets/skins/night/panel-skin.css',
+                '/lib/yuilib/3.9.1/build/panel/assets/skins/night/panel.css',
+                '/lib/yuilib/3.9.1/build/panel/assets/skins/sam/panel.css',
+                '/lib/yuilib/3.9.1/build/panel/assets/skins/sam/panel-skin.css',
+                '/lib/yuilib/3.9.1/build/panel/assets/skins/sam/panel.css',
+                '/lib/yuilib/3.9.1/build/assets/skins/sam/skin.css'
+        );
+
+        if (empty($page)) {
+            $page = $PAGE;
+        }
+        $out = '';
+        $headerprinted = $page->headerprinted; // not reliable!
+        foreach ($req_css as $css) {
+            if (!$headerprinted) {
+                try {
+                    $page->requires->css($css);
+                } catch (Exception $e) {
+                    $headerprinted = true;
+                }
+            }
+            if ($headerprinted) {
+                $out .= "@import url(\"{$CFG->wwwroot}{$css}\");\n";
+            }
+        }
+        if (!empty($out)) {
+            echo "<style>\n{$out}</style>";
+        }
+    }
+    // End RL EDIT
+
     /**
      * Prepares the repository to be cached. Implements method from cacheable_object interface.
      *

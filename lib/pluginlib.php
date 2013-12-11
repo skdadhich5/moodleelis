@@ -231,7 +231,9 @@ class plugin_manager {
 
         if ($disablecache or is_null($this->subpluginsinfo)) {
             $this->subpluginsinfo = array();
-            foreach (array('mod', 'editor') as $type) {
+            // RL EDIT: BJB130213 - added 'block' & 'elis' to array
+            foreach (array('mod', 'block', 'editor', 'elis') as $type) {
+            // End RL EDIT
                 $owners = get_plugin_list($type);
                 foreach ($owners as $component => $ownerdir) {
                     $componentsubplugins = array();

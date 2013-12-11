@@ -20,12 +20,20 @@ class profile_field_menu extends profile_field_base {
             $this->options[''] = get_string('choose').'...';
         }
         foreach($options as $key => $option) {
-            $this->options[$key] = format_string($option);//multilang formatting
+            // RL EDIT
+            $this->options[$option] = format_string($option); // multilang formatting w/ filters
+            // End RL EDIT
         }
 
         /// Set the data key
         if ($this->data !== NULL) {
-            $this->datakey = (int)array_search($this->data, $this->options);
+            // RL EDIT
+            $key = $this->data;
+            if (isset($this->options[$key]) || ($key = array_search($key, $this->options)) !== false) {
+                $this->data = $key;
+                $this->datakey = $key;
+            }
+            // End RL EDIT
         }
     }
 
@@ -43,11 +51,14 @@ class profile_field_menu extends profile_field_base {
      * Overwrites the base class method
      */
     function edit_field_set_default($mform) {
-        if (FALSE !==array_search($this->field->defaultdata, $this->options)){
-            $defaultkey = (int)array_search($this->field->defaultdata, $this->options);
+        // RL EDIT
+        $key = $this->field->defaultdata;
+        if (isset($this->options[$key]) || ($key = array_search($key, $this->options)) !== false) {
+            $defaultkey = $key;
         } else {
             $defaultkey = '';
         }
+        // End RL EDIT
         $mform->setDefault($this->inputname, $defaultkey);
     }
 
@@ -59,7 +70,9 @@ class profile_field_menu extends profile_field_base {
      * @param   stdClass $datarecord The object that will be used to save the record
      */
     function edit_save_data_preprocess($data, $datarecord) {
-        return isset($this->options[$data]) ? $this->options[$data] : NULL;
+        // RL EDIT
+        return isset($this->options[$data]) ? $data : NULL;
+        // End RL EDIT
     }
 
     /**
@@ -82,9 +95,12 @@ class profile_field_menu extends profile_field_base {
         }
         if ($this->is_locked() and !has_capability('moodle/user:update', context_system::instance())) {
             $mform->hardFreeze($this->inputname);
-            $mform->setConstant($this->inputname, $this->datakey);
+            // RL EDIT
+            $mform->setConstant($this->inputname, foramt_string($this->datakey));
+            // End RL EDIT
         }
     }
+
     /**
      * Convert external data (csv file) from value to key for processing later
      * by edit_save_data_preprocess
@@ -93,7 +109,13 @@ class profile_field_menu extends profile_field_base {
      * @return int options key for the menu
      */
     function convert_external_data($value) {
+        // RL EDIT
+        if (isset($this->options[$value])) {
+            $retval = $value;
+        } else {
         $retval = array_search($value, $this->options);
+        }
+        // End RL EDIT
 
         // If value is not found in options then return null, so that it can be handled
         // later by edit_save_data_preprocess

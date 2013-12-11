@@ -739,6 +739,15 @@ class stored_file {
      * @return int 0 means file OK, anything else is a problem and file can not be used
      */
     public function get_status() {
+        // RL EDIT: BJB130215 - sets repository/elis_files file's status to zero
+        $src = !empty($this->file_record->source)
+               ? @unserialize($this->file_record->source)
+               : new stdClass;
+        if (!empty($src->source) && strpos($src->source, '/') === false) {
+            // error_log("/lib/filestorage/stored_file.php::get_status(): INFO: setting status = 0 for file_record..>source = {$src->source}");
+            $this->file_record->status = 0; // TBD
+        }
+        // End RL EDIT
         return $this->file_record->status;
     }
 

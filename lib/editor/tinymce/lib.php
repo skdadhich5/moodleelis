@@ -85,6 +85,11 @@ class tinymce_texteditor extends texteditor {
      * Sets up head code if necessary.
      */
     public function head_setup() {
+        // RL EDIT: BJB130215 - includes filemanager & filepicker CSS
+        global $CFG;
+        require_once($CFG->dirroot.'/repository/lib.php');
+        repository::include_fmfp_css();
+        // End RL EDIT
     }
 
     /**
@@ -214,6 +219,13 @@ class tinymce_texteditor extends texteditor {
 
         // Remove temporary parameters.
         unset($params['moodle_config']);
+
+        // RL EDIT: BJB130213
+        if (defined('NANOGONG') and isset($options['maxfiles']) and $options['maxfiles'] != 0) {
+            $params['plugins'] .= ',nanogong';
+            $params['theme_advanced_buttons3'] .= ',nanogong';
+        }
+        // End RL Edit
 
         return $params;
     }

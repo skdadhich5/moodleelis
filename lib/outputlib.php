@@ -1039,6 +1039,14 @@ class theme_config {
             $css = $csspostprocess($css, $this);
         }
 
+        // RL EDIT
+        // ELIS-3985: remove image urls that point to site index page
+        global $CFG;
+        $match = $CFG->wwwroot;
+        $css = preg_replace("|.*background:[ ]*url\({$match}\).*;|", '', $css);
+        $css = preg_replace("|.*background:[ ]*([#,0-9,A-Z,a-z]*)[ ]*url\({$match}\).*;|", ' background-color: $1;', $css);
+        // End: RL EDIT
+
         return $css;
     }
 

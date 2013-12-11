@@ -64,13 +64,14 @@ if ($reset and confirm_sesskey()) {
 
     // Get the core renderer for the new theme.
     $output = $confirmpage->get_renderer('core');
-
     echo $output->header();
+    echo $PAGE->requires->get_head_code($confirmpage, $output); // RL EDIT
     echo $output->heading(get_string('themesaved'));
     echo $output->box_start();
     echo format_text(get_string('choosereadme', 'theme_'.$theme->name), FORMAT_MOODLE);
     echo $output->box_end();
     echo $output->continue_button($CFG->wwwroot . '/theme/index.php');
+    echo $PAGE->requires->get_end_code(); // RL EDIT: ELIS-4012
     echo $output->footer();
     exit;
 } else if ($device && $unsettheme && confirm_sesskey() && ($device != 'default')) {

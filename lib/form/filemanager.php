@@ -49,7 +49,11 @@ class MoodleQuickForm_filemanager extends HTML_QuickForm_element {
     // We cannot do $_options = array('return_types'=> FILE_INTERNAL | FILE_REFERENCE);
     // So I have to set null here, and do it in constructor
     protected $_options = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
-            'accepted_types' => '*', 'return_types' =>  null, 'areamaxbytes' => FILE_AREA_MAX_BYTES_UNLIMITED);
+            'accepted_types' => '*', 'return_types' =>  null, 'areamaxbytes' => FILE_AREA_MAX_BYTES_UNLIMITED
+            // RL EDIT: BJB130215
+            , 'locations' => null, 'currentpath' => '/', 'nomoodlefiles' => false
+            // End RL EDIT
+    );
 
     /**
      * Constructor
@@ -233,7 +237,27 @@ class MoodleQuickForm_filemanager extends HTML_QuickForm_element {
         $subdirs     = $this->_options['subdirs'];
         $maxbytes    = $this->_options['maxbytes'];
         $draftitemid = $this->getValue();
-        $accepted_types = $this->_options['accepted_types'];
+
+        //ELIS-7712: check if accepted_types is a group!!!
+        $intypes     = (array) $this->_options['accepted_types'];
+        $accepted_types = array();
+        $mimearray = & get_mimetypes_array();
+        foreach ($intypes as $intype) {
+            if (strpos($intype, '.') === 0) {
+                $intype = substr($intype, 1);
+            }
+            if ($intype == '*') {
+                $accepted_types = array('*');
+                break;
+            }
+            foreach ($mimearray as $mimetype => $mimeinfo) {
+                if (!empty($mimeinfo['type']) &&
+                    (($intype == $mimetype) || ($intype == $mimeinfo['type']) ||
+                     (!empty($mimeinfo['groups']) && in_array($intype, $mimeinfo['groups'])))) {
+                    $accepted_types[] = '.'. $mimetype;
+                }
+            }
+        }
 
         if (empty($draftitemid)) {
             // no existing area info provided - let's use fresh new draft area
@@ -257,6 +281,11 @@ class MoodleQuickForm_filemanager extends HTML_QuickForm_element {
         $options->return_types = $this->_options['return_types'];
         $options->context = $PAGE->context;
         $options->areamaxbytes = $this->_options['areamaxbytes'];
+        // RL EDIT: BJB130215
+        $options->locations = $this->_options['locations'];
+        $options->currentpath = $this->_options['currentpath'];
+        $options->nomoodlefiles = !empty($this->_options['nomoodlefiles']);
+        // End RL EDIT
 
         $html = $this->_getTabs();
         $fm = new form_filemanager($options);
@@ -306,6 +335,7 @@ class form_filemanager implements renderable {
     public function __construct(stdClass $options) {
         global $CFG, $USER, $PAGE;
         require_once($CFG->dirroot. '/repository/lib.php');
+        repository::include_fmfp_css(); // RL EDIT BJB130215 ELIS-6928
         $defaults = array(
             'maxbytes'=>-1,
             'areamaxbytes' => FILE_AREA_MAX_BYTES_UNLIMITED,
@@ -317,7 +347,8 @@ class form_filemanager implements renderable {
             'return_types'=>FILE_INTERNAL,
             'context'=>$PAGE->context,
             'author'=>fullname($USER),
-            'licenses'=>array()
+            'licenses'=>array(),
+            'locations' => null // RL EDIT: BJB130215
             );
         if (!empty($CFG->licenses)) {
             $array = explode(',', $CFG->licenses);
@@ -373,6 +404,7 @@ class form_filemanager implements renderable {
         $params->context = $options->context;
         $params->env = 'filemanager';
         $params->disable_types = !empty($options->disable_types)?$options->disable_types:array();
+        $params->locations = $options->locations; // RL EDIT: BJB130215
         $filepicker_options = initialise_filepicker($params);
         $this->options->filepicker = $filepicker_options;
     }

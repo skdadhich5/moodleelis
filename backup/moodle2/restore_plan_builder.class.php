@@ -179,7 +179,9 @@ abstract class restore_plan_builder {
     /**
      * Restore one 1-course backup
      */
-    static protected function build_course_plan($controller, $courseid) {
+    // HOSSUP-254 - changed from protected to public
+    // TODO: Find a better solution than this to allow ELIS content rollover to work.
+    static public function build_course_plan($controller, $courseid) {
 
         $plan = $controller->get_plan();
         $info = $controller->get_info();
