@@ -46,7 +46,7 @@ class core_message_renderer extends plugin_renderer_base {
         global $CFG;
         // Display the current workflows
         $table = new html_table();
-        $table->attributes['class'] = 'generaltable';
+        $table->attributes['class'] = 'admintable generaltable';
         $table->data        = array();
         $table->head        = array(
             get_string('name'),
@@ -81,7 +81,7 @@ class core_message_renderer extends plugin_renderer_base {
                     )
                 ));
             } else {
-                $name->attributes['class'] = 'dimmed_text';
+                $row->attributes['class'] = 'dimmed_text';
                 $url = new moodle_url('/admin/message.php', array('enable' => $processor->id, 'sesskey' => sesskey()));
                 $enable->text = html_writer::link($url, html_writer::empty_tag('img',
                     array('src'   => $this->output->pix_url('t/show'),
@@ -353,6 +353,10 @@ class core_message_renderer extends plugin_renderer_base {
         $output .= html_writer::nonempty_tag('legend', get_string('generalsettings','admin'), array('class' => 'ftoggler'));
 
         $output .= html_writer::start_tag('div');
+        $output .= html_writer::checkbox('beepnewmessage', 1, $preferences->beepnewmessage, get_string('beepnewmessage', 'message'));
+        $output .= html_writer::end_tag('div');
+
+        $output .= html_writer::start_tag('div');
         $output .= html_writer::checkbox('blocknoncontacts', 1, $preferences->blocknoncontacts, get_string('blocknoncontacts', 'message'));
         $output .= html_writer::end_tag('div');
 
@@ -364,6 +368,7 @@ class core_message_renderer extends plugin_renderer_base {
         $output .= html_writer::start_tag('div', array('class' => 'mdl-align'));
         $output .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('updatemyprofile'), 'class' => 'form-submit'));
         $output .= html_writer::end_tag('div');
+
         $output .= html_writer::end_tag('form');
         return $output;
     }

@@ -53,6 +53,45 @@
 
 }
 
+@media (max-width: 873px) {
+    .file-picker .fp-repo-area {
+        width: 100%;
+        height: auto;
+        max-height: 220px;
+        y-scroll: auto;
+        float: none;
+        border: 0px;
+    }
+    .file-picker .fp-repo-items {
+        width: 100%;
+        float: none;
+    }
+    .file-picker .fp-login-form .fp-login-input label {
+        text-align: left;
+    }
+    .dir-rtl .file-picker .fp-login-form .fp-login-input label {
+        text-align: right;
+    }
+    .file-picker .fp-content form td {
+        display: block;
+        width: 100%;
+        text-align: left;
+    }
+    .dir-rtl .file-picker .fp-content form td {
+        text-align: right;
+    }
+    .fp-content .mdl-right {
+        text-align: left;
+    }
+    .dir-rtl .fp-content .mdl-right {
+        text-align: right;
+    }
+
+    .fp-repo-items .fp-navbar {
+        border-top: 1px solid rgb(187, 187, 187);
+    }
+}
+
 // login page
 @media (min-width: 1200px) {
     .loginbox.twocolumns .loginpanel {
@@ -169,38 +208,9 @@
         border-color: #ddd;
         z-index: 2;
     }
-    .file-picker .fp-repo-items,
-    .file-picker .fp-repo-area {
-        position: relative;
-        display: block;
-        width: auto;
-        top: 0;
-        bottom: 0;
-        border: none;
-        margin: 0;
-    }
-    .file-picker .fp-content {
-        width: 100%;
-        height: 100%;
-    }
     .fp-content-center {
         display: block;
         vertical-align: top;
-    }
-    .fp-upload-form td.mdl-right,
-    .fp-upload-form td.mdl-left,
-    .fp-login-form .input,
-    .file-picker .fp-login-form .fp-login-input label,
-    .file-picker td.label {
-        display: block;
-        text-align: left;
-    }
-    .file-picker .fp-login-form table,
-    .file-picker td,
-    .file-picker td.label,
-    .file-picker .fp-upload-form table {
-            margin: 0;
-            padding: 0;
     }
     .course-content ul.topics li.section,
     .course-content ul.topics li.section .content,
@@ -220,25 +230,15 @@
         border-bottom: thin solid #eee;
     }
     .course-content .section .activity .commands {
-        display: block;
         text-align: right;
     }
-    .jsenabled .visibleifjs.addresourcemodchooser {
-        display: none;
+    /** Handles display of the activity chooser on small screens **/
+    .jsenabled .choosercontainer #chooseform .alloptions {
+        max-width: 100%;
     }
-    .jsenabled .hiddenifjs.addresourcedropdown {
-        display: block;
-        .iconhelp {
-            display: inline-block;
-            padding: 6px;
-            vertical-align: top;
-        }
-        div.urlselect {
-            display: block;
-            form {
-                margin: 0;
-            }
-        }
+    .jsenabled .choosercontainer #chooseform .instruction,
+    .jsenabled .choosercontainer #chooseform .typesummary {
+        position:static;
     }
     .que .info {
         float: none;
@@ -347,7 +347,23 @@
     .nav-collapse.active {
         height: auto;
     }
-
+    .path-mod-data .box > table > tbody > tr > td {
+        display: block;
+    }
+    .path-mod-forum .forumheaderlist {
+        thead .header {
+            font-weight: normal;
+            font-size: round(@fontSizeSmall);
+        }
+        .discussion {
+            .author, .replies, .lastpost {
+                font-size: round(@fontSizeSmall);
+            }
+            .replies .unread a {
+                padding: 0;
+            }
+        }
+    }
 }
 
 @media (max-width: 768px) {
@@ -382,9 +398,6 @@
     .editing_move {
         display: none;
     }
-    .activityinstance > a {
-        display: block;
-    }
 
   // GRID & CONTAINERS
   // -----------------
@@ -413,6 +426,18 @@
     margin-left: 0;
     .box-sizing(border-box);
   }
+
+  // We need to specify a more specific selector to reset the width for
+  // cases when we have content in the side-pre blockregion but not in the
+  // side-post blockregion as there are more specific selectors in
+  // core.less which take precedence which break responsiveness.
+  .empty-region-side-post.used-region-side-pre {
+      #block-region-side-pre.span4,
+      #region-main.span8.span8 {
+        .fluid-span(12);
+      }
+  }
+
   .row-fluid .span12 {
     width: 100%;
     .box-sizing(border-box);
@@ -423,4 +448,63 @@
   div[role=main] {
       margin-bottom: 1em;
   }
+    .coursebox {
+        .info {
+            .name {
+                a {
+                    background-position: 0 13px;
+                }
+            }
+        }
+    }
+    .category-browse {
+        .coursebox {
+            .info {
+                .name {
+                    a {
+                        background-position: 0 13px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// All widths between 1200px and 1600px
+@media (min-width: 1200px) and (max-width: 1600px) {
+    // CSS for the course management pages.
+    #course-category-listings.columns-3 {
+        background-color:transparent;
+        border:0;
+
+        #category-listing,
+        #course-listing {
+            .fluid-span(6);
+            margin-left: @fluidGridGutterWidth;
+            *margin-left: @fluidGridGutterWidth - (.5 / @gridRowWidth * 100 * 1%);
+            &:first-child {
+                margin-left: 0;
+            }
+        }
+        #course-detail {
+            .fluid-span(12);
+            margin: 1em 0 0;
+        }
+    }
+
+}
+
+// All widths up to 1199px.
+@media (max-width: 1199px) {
+    // CSS for the course management pages.
+    #course-category-listings.columns-3 {
+        background-color:transparent;
+        border:0;
+        #category-listing,
+        #course-listing,
+        #course-detail {
+            .fluid-span(12);
+            margin: 0 0 1em 0;
+        }
+    }
 }

@@ -24,13 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-if (!defined('SESSION_ACQUIRE_LOCK_TIMEOUT')) {
-    /**
-     * How much time to wait for session lock before displaying error (in seconds),
-     * 2 minutes by default should be a reasonable time before telling users to wait and refresh browser.
-     */
-    define('SESSION_ACQUIRE_LOCK_TIMEOUT', 60*2);
-}
 
 /**
   * Factory method returning moodle_session object.
@@ -1111,79 +1104,6 @@ function get_moodle_cookie() {
     }
 }
 
-
-/**
- * Setup $USER object - called during login, loginas, etc.
- *
- * Call sync_user_enrolments() manually after log-in, or log-in-as.
- *
- * @param stdClass $user full user record object
- * @return void
- */
-function session_set_user($user) {
-    $_SESSION['USER'] = $user;
-    unset($_SESSION['USER']->description); // conserve memory
-    if (isset($_SESSION['USER']->lang)) {
-        // Make sure it is a valid lang pack name.
-        $_SESSION['USER']->lang = clean_param($_SESSION['USER']->lang, PARAM_LANG);
-    }
-    sesskey(); // init session key
-
-    if (PHPUNIT_TEST || defined('BEHAT_TEST')) {
-        // phpunit tests use reversed reference
-        global $USER;
-        $USER = $_SESSION['USER'];
-        $_SESSION['USER'] =& $USER;
-    }
-}
-
-/**
- * Is current $USER logged-in-as somebody else?
- * @return bool
- */
-function session_is_loggedinas() {
-    return !empty($_SESSION['USER']->realuser);
-}
-
-/**
- * Returns the $USER object ignoring current login-as session
- * @return stdClass user object
- */
-function session_get_realuser() {
-    if (session_is_loggedinas()) {
-        return $_SESSION['REALUSER'];
-    } else {
-        return $_SESSION['USER'];
-    }
-}
-
-/**
- * Login as another user - no security checks here.
- * @param int $userid
- * @param stdClass $context
- * @return void
- */
-function session_loginas($userid, $context) {
-    if (session_is_loggedinas()) {
-        return;
-    }
-
-    // switch to fresh new $SESSION
-    $_SESSION['REALSESSION'] = $_SESSION['SESSION'];
-    $_SESSION['SESSION']     = new stdClass();
-
-    /// Create the new $USER object with all details and reload needed capabilities
-    $_SESSION['REALUSER'] = $_SESSION['USER'];
-    $user = get_complete_user_data('id', $userid);
-    $user->realuser       = $_SESSION['REALUSER']->id;
-    $user->loginascontext = $context;
-
-    // let enrol plugins deal with new enrolments if necessary
-    enrol_check_plugins($user);
-    // set up global $USER
-    session_set_user($user);
-}
-
 /**
  * Sets up current user and course environment (lang, etc.) in cron.
  * Do not use outside of cron script!
@@ -1211,13 +1131,13 @@ function cron_setup_user($user = NULL, $course = NULL) {
 
     if (!$user) {
         // cached default cron user (==modified admin for now)
-        session_set_user($cronuser);
+        \core\session\manager::set_user($cronuser);
         $_SESSION['SESSION'] = $cronsession;
 
     } else {
         // emulate real user session - needed for caps in cron
         if ($_SESSION['USER']->id != $user->id) {
-            session_set_user($user);
+            \core\session\manager::set_user($user);
             $_SESSION['SESSION'] = new stdClass();
         }
     }

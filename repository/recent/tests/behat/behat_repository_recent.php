@@ -42,6 +42,9 @@ class behat_repository_recent extends behat_files {
     /**
      * Adds the specified file from the 'Recent files' repository to the specified filepicker of the current page.
      *
+     * This will be deprecated in 2.7
+     * @see behat_filepicker::i_add_file_from_repository_to_filemanager()
+     *
      * @When /^I add "(?P<filename_string>(?:[^"]|\\")*)" file from recent files to "(?P<filepicker_field_string>(?:[^"]|\\")*)" filepicker$/
      * @param string $filename
      * @param string $filepickerelement

@@ -46,8 +46,7 @@ function cron_run() {
         $DB->set_debug(true);
     }
     if (!empty($CFG->showcrondebugging)) {
-        $CFG->debug = DEBUG_DEVELOPER;
-        $CFG->debugdisplay = true;
+        set_debugging(DEBUG_DEVELOPER, true);
     }
 
     set_time_limit(0);
@@ -174,6 +173,15 @@ function cron_run() {
         mtrace(' Deleting temporary files...');
         cron_delete_from_temp();
 
+        // Cleanup user password reset records
+        // Delete any reset request records which are expired by more than a day.
+        // (We keep recently expired requests around so we can give a different error msg to users who
+        // are trying to user a recently expired reset attempt).
+        $pwresettime = isset($CFG->pwresettime) ? $CFG->pwresettime : 1800;
+        $earliestvalid = time() - $pwresettime - DAYSECS;
+        $DB->delete_records_select('user_password_resets', "timerequested < ?", array($earliestvalid));
+        mtrace(' Cleaned up old password reset records');
+
         mtrace("...finished clean-up tasks");
 
     } // End of occasional clean-up tasks
@@ -191,9 +199,10 @@ function cron_run() {
     mtrace(' Created missing context instances');
 
 
-    // Session gc
-    session_gc();
-    mtrace("Cleaned up stale user sessions");
+    // Session gc.
+    mtrace("Running session gc tasks...");
+    \core\session\manager::gc();
+    mtrace("...finished stale session cleanup");
 
 
     // Run the auth cron, if any before enrolments
@@ -415,8 +424,7 @@ function cron_run() {
 
     // If enabled, fetch information about available updates and eventually notify site admins
     if (empty($CFG->disableupdatenotifications)) {
-        require_once($CFG->libdir.'/pluginlib.php');
-        $updateschecker = available_update_checker::instance();
+        $updateschecker = \core\update\checker::instance();
         $updateschecker->cron();
     }
 
@@ -450,7 +458,7 @@ function cron_run() {
     elis_cron();
 
     // and finally run any local cronjobs, if any
-    if ($locals = get_plugin_list('local')) {
+    if ($locals = core_component::get_plugin_list('local')) {
         mtrace('Processing customized cron scripts ...', '');
         // new cron functions in lib.php first
         cron_execute_plugin_type('local');
@@ -539,7 +547,7 @@ function cron_execute_plugin_type($plugintype, $description = null) {
     }
 
     foreach ($plugins as $component=>$cronfunction) {
-        $dir = get_component_directory($component);
+        $dir = core_component::get_component_directory($component);
 
         // Get cron period if specified in version.php, otherwise assume every cron
         $cronperiod = 0;
@@ -596,7 +604,7 @@ function cron_bc_hack_plugin_functions($plugintype, $plugins) {
     if ($plugintype === 'report') {
         // Admin reports only - not course report because course report was
         // never implemented before, so doesn't need BC
-        foreach (get_plugin_list($plugintype) as $pluginname=>$dir) {
+        foreach (core_component::get_plugin_list($plugintype) as $pluginname=>$dir) {
             $component = $plugintype . '_' . $pluginname;
             if (isset($plugins[$component])) {
                 // We already have detected the function using the new API
@@ -619,7 +627,7 @@ function cron_bc_hack_plugin_functions($plugintype, $plugins) {
         // Detect old style cron function names
         // Plugin gradeexport_frog used to use grade_export_frog_cron() instead of
         // new standard API gradeexport_frog_cron(). Also applies to gradeimport, gradereport
-        foreach(get_plugin_list($plugintype) as $pluginname=>$dir) {
+        foreach(core_component::get_plugin_list($plugintype) as $pluginname=>$dir) {
             $component = $plugintype.'_'.$pluginname;
             if (isset($plugins[$component])) {
                 // We already have detected the function using the new API
@@ -763,7 +771,7 @@ function notify_login_failures() {
         mtrace('Emailing admins about '. $count .' failed login attempts');
         foreach ($recip as $admin) {
             //emailing the admins directly rather than putting these through the messaging system
-            email_to_user($admin, generate_email_supportuser(), $subject, $body);
+            email_to_user($admin, core_user::get_support_user(), $subject, $body);
         }
     }
 

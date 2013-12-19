@@ -51,29 +51,6 @@ form {
 .jsenabled .mform .collapsed .fcontainer {
     display: none;
 }
-.mform .collapsible-actions {
-    display: none;
-    text-align: right;
-}
-.dir-rtl .mform .collapsible-actions {
-    text-align: left;
-}
-.jsenabled .mform .collapsible-actions {
-    display: block;
-}
-.mform .collapsible-actions .collapseexpand {
-    padding-left: 20px;
-    background: url([[pix:t/collapsed]]) 2px center no-repeat;
-}
-.dir-rtl .mform .collapsible-actions .collapseexpand {
-    padding-right: 20px;
-    padding-left: 0;
-    background: url([[pix:t/collapsed_rtl]]) right center no-repeat;
-}
-.mform .collapsible-actions .collapse-all,
-.dir-rtl .mform .collapsible-actions .collapse-all {
-    background-image: url([[pix:t/expanded]]);
-}
 
 .mform .fitem .fitemtitle div {
     display: inline;
@@ -94,6 +71,16 @@ form {
     & > label {
         display: inline-block;
     }
+}
+.mform label {
+    display: inline-block;
+}
+
+.mform .iconhelp {
+    margin-left: 4px;
+}
+.dir-rtl .mform .iconhelp {
+    margin-right: 4px;
 }
 .mform .ftextarea #id_alltext {
     width: 100%;
@@ -239,7 +226,7 @@ div.backup-section + form,
     display: inline-block; // So above style sticks.
 }
 
-#adminsettings h3.main {
+#adminsettings h3 {
     // Copied from bootstrap/forms.less tag legend.
     display: block;
     width: 100%;
@@ -394,4 +381,66 @@ div#dateselector-calendar-panel {
 
 fieldset.coursesearchbox label {
     display: inline;
+}
+
+/**
+ * Show the labels above text editors and file managers except on wide screens.
+ */
+#region-main .mform:not(.unresponsive) .fitem .fitemtitle label {
+    font-weight: bold;
+}
+@media (max-width: 1199px) {
+    #region-main .mform:not(.unresponsive) .fitem .fitemtitle {
+        display: block;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        text-align: left;
+        width: 100%;
+    }
+    #region-main .mform:not(.unresponsive) .femptylabel .fitemtitle {
+        display: inline-block;
+        width: auto;
+        margin-right: 8px;
+    }
+    .dir-rtl #region-main .mform:not(.unresponsive) .femptylabel .fitemtitle {
+        margin-right: 0px;
+        margin-left: 8px;
+    }
+    .dir-rtl #region-main .mform:not(.unresponsive) .fitem .fitemtitle {
+        text-align: right;
+    }
+
+    #region-main .mform:not(.unresponsive) .fitem .felement {
+        margin-left: 0;
+        width: 100%;
+        float: left;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    #region-main .mform:not(.unresponsive) .fitem .fstatic:empty {
+        display: none;
+    }
+    #region-main .mform:not(.unresponsive) .femptylabel .felement {
+        display: inline-block;
+        margin-top: 4px;
+        padding-top: 5px;
+        width: auto;
+    }
+    .dir-rtl #region-main .mform:not(.unresponsive) .fitem .felement {
+        margin-right: 0;
+        float: right;
+        padding-right: 0;
+        padding-left: 0;
+    }
+    #region-main .mform:not(.unresponsive) .fitem_fcheckbox .fitemtitle,
+    #region-main .mform:not(.unresponsive) .fitem_fcheckbox .felement {
+        display: inline-block;
+        width: auto;
+    }
+    .dir-rtl #region-main .mform:not(.unresponsive) .fitem_fcheckbox .felement {
+        float: right;
+    }
+    #region-main .mform:not(.unresponsive) .fitem_fcheckbox .felement {
+        padding: 6px;
+    }
 }

@@ -46,6 +46,9 @@ class phpunit_util extends testing_util {
     /** @var phpunit_phpmailer_sink alternative target for phpmailer messaging */
     protected static $phpmailersink = null;
 
+    /** @var phpunit_message_sink alternative target for moodle messaging */
+    protected static $eventsink = null;
+
     /**
      * @var array Files to skip when resetting dataroot folder
      */
@@ -72,7 +75,7 @@ class phpunit_util extends testing_util {
             initialise_cfg();
             return;
         }
-        if ($dbhash !== self::get_version_hash()) {
+        if ($dbhash !== core_component::get_all_versions_hash()) {
             // do not set CFG - the only way forward is to drop and reinstall
             return;
         }
@@ -100,6 +103,9 @@ class phpunit_util extends testing_util {
 
         // Stop any message redirection.
         phpunit_util::stop_phpmailer_redirection();
+
+        // Stop any message redirection.
+        phpunit_util::stop_event_redirection();
 
         // Release memory and indirectly call destroy() methods to release resource handles, etc.
         gc_collect_cycles();
@@ -185,9 +191,10 @@ class phpunit_util extends testing_util {
         $user = new stdClass();
         $user->id = 0;
         $user->mnethostid = $CFG->mnet_localhost_id;
-        session_set_user($user);
+        \core\session\manager::set_user($user);
 
         // reset all static caches
+        \core\event\manager::phpunit_reset();
         accesslib_clear_all_caches(true);
         get_string_manager()->reset_caches(true);
         reset_text_filters_cache(true);
@@ -208,14 +215,14 @@ class phpunit_util extends testing_util {
         get_fast_modinfo(0, 0, true);
 
         // Reset other singletons.
-        if (class_exists('plugin_manager')) {
-            plugin_manager::reset_caches(true);
+        if (class_exists('core_plugin_manager')) {
+            core_plugin_manager::reset_caches(true);
         }
-        if (class_exists('available_update_checker')) {
-            available_update_checker::reset_caches(true);
+        if (class_exists('\core\update\checker')) {
+            \core\update\checker::reset_caches(true);
         }
-        if (class_exists('available_update_deployer')) {
-            available_update_deployer::reset_caches(true);
+        if (class_exists('\core\update\deployer')) {
+            \core\update\deployer::reset_caches(true);
         }
 
         // purge dataroot directory
@@ -407,10 +414,10 @@ class phpunit_util extends testing_util {
 
         $suites = '';
 
-        $plugintypes = get_plugin_types();
+        $plugintypes = core_component::get_plugin_types();
         ksort($plugintypes);
         foreach ($plugintypes as $type=>$unused) {
-            $plugs = get_plugin_list($type);
+            $plugs = core_component::get_plugin_list($type);
             ksort($plugs);
             foreach ($plugs as $plug=>$fullplug) {
                 if (!file_exists("$fullplug/tests/")) {
@@ -538,6 +545,7 @@ class phpunit_util extends testing_util {
      */
     public static function reset_debugging() {
         self::$debuggings = array();
+        set_debugging(DEBUG_DEVELOPER);
     }
 
     /**
@@ -658,6 +666,59 @@ class phpunit_util extends testing_util {
     public static function phpmailer_sent($message) {
         if (self::$phpmailersink) {
             self::$phpmailersink->add_message($message);
+        }
+    }
+
+    /**
+     * Start event redirection.
+     *
+     * @private
+     * Note: Do not call directly from tests,
+     *       use $sink = $this->redirectEvents() instead.
+     *
+     * @return phpunit_event_sink
+     */
+    public static function start_event_redirection() {
+        if (self::$eventsink) {
+            self::stop_event_redirection();
+        }
+        self::$eventsink = new phpunit_event_sink();
+        return self::$eventsink;
+    }
+
+    /**
+     * End event redirection.
+     *
+     * @private
+     * Note: Do not call directly from tests,
+     *       use $sink->close() instead.
+     */
+    public static function stop_event_redirection() {
+        self::$eventsink = null;
+    }
+
+    /**
+     * Are events redirected to some sink?
+     *
+     * Note: to be called from \core\event\base only!
+     *
+     * @private
+     * @return bool
+     */
+    public static function is_redirecting_events() {
+        return !empty(self::$eventsink);
+    }
+
+    /**
+     * To be called from \core\event\base only!
+     *
+     * @private
+     * @param \core\event\base $event record from event_read table
+     * @return bool true means send event, false means event "sent" to sink.
+     */
+    public static function event_triggered(\core\event\base $event) {
+        if (self::$eventsink) {
+            self::$eventsink->add_event($event);
         }
     }
 }

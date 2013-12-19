@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-//NOTE: do not verify MOODLE_INTERNAL here, this is used from themes too
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Send javascript file content with as much caching as possible

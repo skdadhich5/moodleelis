@@ -115,7 +115,12 @@ $context = context_course::instance($course->id);
 
 require_capability('report/log:view', $context);
 
-add_to_log($course->id, "course", "report log", "report/log/index.php?id=$course->id", $course->id);
+// Trigger a content view event.
+$event = \report_log\event\content_viewed::create(array('courseid' => $course->id,
+                                                        'other'    => array('content' => 'logs')));
+$event->set_page_detail();
+$event->set_legacy_logdata(array($course->id, "course", "report log", "report/log/index.php?id=$course->id", $course->id));
+$event->trigger();
 
 if (!empty($page)) {
     $strlogs = get_string('logs'). ": ". get_string('page', 'report_log', $page+1);
@@ -130,7 +135,7 @@ $adminediting = optional_param('adminedit', -1, PARAM_BOOL);
 if ($PAGE->user_allowed_editing() && $adminediting != -1) {
     $USER->editing = $adminediting;
 }
-session_get_instance()->write_close();
+\core\session\manager::write_close();
 
 if (!empty($chooselog)) {
     $userinfo = get_string('allparticipants');

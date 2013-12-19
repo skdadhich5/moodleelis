@@ -17,8 +17,7 @@ function afterburner_process_css($css, $theme) {
     return $css;
 }
 
-function afterburner_set_logo($css, $logo, $theme = null) {
-    global $OUTPUT;
+function afterburner_set_logo($css, $logo, $theme) {
     if ($theme === null) {
         $theme = $OUTPUT;
     }

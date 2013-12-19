@@ -32,6 +32,7 @@ require_once(__DIR__ . '/../../behat/behat_base.php');
 use Behat\Behat\Event\SuiteEvent as SuiteEvent,
     Behat\Behat\Event\ScenarioEvent as ScenarioEvent,
     Behat\Behat\Event\StepEvent as StepEvent,
+    Behat\Mink\Exception\DriverException as DriverException,
     WebDriver\Exception\NoSuchWindow as NoSuchWindow,
     WebDriver\Exception\UnexpectedAlertOpen as UnexpectedAlertOpen,
     WebDriver\Exception\UnknownError as UnknownError,
@@ -143,14 +144,16 @@ class behat_hooks extends behat_base {
             throw new coding_exception('Behat only can modify the test database and the test dataroot!');
         }
 
+        $moreinfo = 'More info in ' . behat_command::DOCS_URL . '#Running_tests';
+        $driverexceptionmsg = 'Selenium server is not running, you need to start it to run tests that involve Javascript. ' . $moreinfo;
         try {
             $session = $this->getSession();
         } catch (CurlExec $e) {
             // Exception thrown by WebDriver, so only @javascript tests will be caugth; in
             // behat_util::is_server_running() we already checked that the server is running.
-            $moreinfo = 'More info in ' . behat_command::DOCS_URL . '#Running_tests';
-            $msg = 'Selenium server is not running, you need to start it to run tests that involve Javascript. ' . $moreinfo;
-            throw new Exception($msg);
+            throw new Exception($driverexceptionmsg);
+        } catch (DriverException $e) {
+            throw new Exception($driverexceptionmsg);
         } catch (UnknownError $e) {
             // Generic 'I have no idea' Selenium error. Custom exception to provide more feedback about possible solutions.
             $this->throw_unknown_exception($e);
@@ -162,8 +165,10 @@ class behat_hooks extends behat_base {
             behat_selectors::register_moodle_selectors($session);
         }
 
-        // Avoid some notices / warnings.
+        // Reset $SESSION.
+        $_SESSION = array();
         $SESSION = new stdClass();
+        $_SESSION['SESSION'] =& $SESSION;
 
         behat_util::reset_database();
         behat_util::reset_dataroot();
@@ -174,9 +179,9 @@ class behat_hooks extends behat_base {
         // Reset the nasty strings list used during the last test.
         nasty_strings::reset_used_strings();
 
-        // Assing valid data to admin user (some generator-related code needs a valid user).
+        // Assign valid data to admin user (some generator-related code needs a valid user).
         $user = $DB->get_record('user', array('username' => 'admin'));
-        session_set_user($user);
+        \core\session\manager::set_user($user);
 
         // Reset the browser if specified in config.php.
         if (!empty($CFG->behat_restart_browser_after) && $this->running_javascript()) {
@@ -217,42 +222,90 @@ class behat_hooks extends behat_base {
     }
 
     /**
-     * Checks that all DOM is ready.
+     * Wait for JS to complete before beginning interacting with the DOM.
+     *
+     * Executed only when running against a real browser.
+     *
+     * @BeforeStep @javascript
+     */
+    public function before_step_javascript($event) {
+        $this->wait_for_pending_js();
+
+        // Checking that the root path is a Moodle test site.
+        if (self::is_first_scenario()) {
+            $notestsiteexception = new Exception('The base URL (' . $CFG->wwwroot . ') is not a behat test site, ' .
+                'ensure you started the built-in web server in the correct directory or your web server is correctly started and set up');
+            $this->find("xpath", "//head/child::title[normalize-space(.)='" . behat_util::BEHATSITENAME . "']", $notestsiteexception);
+
+            self::$initprocessesfinished = true;
+        }
+
+        // Closing JS dialogs if present. Otherwise they would block this scenario execution.
+        if ($this->running_javascript()) {
+            try {
+                $session->getDriver()->getWebDriverSession()->accept_alert();
+            } catch (NoAlertOpenError $e) {
+                // All ok, there should not be JS dialogs in theory.
+            }
+        }
+
+    }
+
+    /**
+     * Wait for JS to complete after finishing the step.
+     *
+     * With this we ensure that there are not AJAX calls
+     * still in progress.
      *
      * Executed only when running against a real browser.
      *
      * @AfterStep @javascript
      */
     public function after_step_javascript($event) {
+        $this->wait_for_pending_js();
+    }
 
-        // If it doesn't have definition or it fails there is no need to check it.
-        if ($event->getResult() != StepEvent::PASSED ||
-            !$event->hasDefinition()) {
-            return;
-        }
+    /**
+     * Waits for all the JS to be loaded.
+     *
+     * @throws NoSuchWindow
+     * @throws UnknownError
+     * @return bool True or false depending whether all the JS is loaded or not.
+     */
+    protected function wait_for_pending_js() {
 
-       // Wait until the page is ready.
-       // We are already checking that we use a JS browser, this could
-       // change in case we use another JS driver.
-       try {
-
-            // Safari and Internet Explorer requires time between steps,
-            // otherwise Selenium tries to click in the previous page's DOM.
-            if ($this->getSession()->getDriver()->getBrowserName() == 'safari' ||
-                    $this->getSession()->getDriver()->getBrowserName() == 'internet explorer') {
-                $this->getSession()->wait(self::TIMEOUT * 1000, false);
-
-            } else {
-                // With other browsers we just wait for the DOM ready.
-                $this->getSession()->wait(self::TIMEOUT * 1000, '(document.readyState === "complete")');
+        // We don't use behat_base::spin() here as we don't want to end up with an exception
+        // if the page & JSs don't finish loading properly.
+        for ($i = 0; $i < self::EXTENDED_TIMEOUT * 10; $i++) {
+            $pending = '';
+            try {
+                $jscode = 'return ' . self::PAGE_READY_JS . ' ? "" : M.util.pending_js.join(":");';
+                $pending = $this->getSession()->evaluateScript($jscode);
+            } catch (NoSuchWindow $nsw) {
+                // We catch an exception here, in case we just closed the window we were interacting with.
+                // No javascript is running if there is no window right?
+                $pending = '';
+            } catch (UnknownError $e) {
+                // Same exception as before, but some combinations of browser + OS reports it as an unknown error
+                // exception.
+                $pending = '';
             }
 
-        } catch (NoSuchWindow $e) {
-            // If we were interacting with a popup window it will not exists after closing it.
+            // If there are no pending JS we stop waiting.
+            if ($pending === '') {
+                return true;
+            }
+
+            // 0.1 seconds.
+            usleep(100000);
         } catch (UnknownError $e) {
             // Custom exception to provide more feedback about possible solutions.
             $this->throw_unknown_exception($e);
         }
+
+        // Timeout waiting for JS to complete.
+        // TODO MDL-43173 We should fail the scenarios if JS loading times out.
+        return false;
     }
 
     /**
@@ -270,12 +323,11 @@ class behat_hooks extends behat_base {
         try {
 
             // Exceptions.
-            $exceptionsxpath = "//*[contains(concat(' ', normalize-space(@class), ' '), ' errorbox ')]" .
-                "/descendant::p[contains(concat(' ', normalize-space(@class), ' '), ' errormessage ')]";
+            $exceptionsxpath = "//div[@data-rel='fatalerror']";
             // Debugging messages.
-            $debuggingxpath = "//*[contains(concat(' ', normalize-space(@class), ' '), ' debuggingmessage ')]";
+            $debuggingxpath = "//div[@data-rel='debugging']";
             // PHP debug messages.
-            $phperrorxpath = "//*[contains(concat(' ', normalize-space(@class), ' '), ' phpdebugmessage ')]";
+            $phperrorxpath = "//div[@data-rel='phpdebugmessage']";
             // Any other backtrace.
             $othersxpath = "(//*[contains(., ': call to ')])[1]";
 

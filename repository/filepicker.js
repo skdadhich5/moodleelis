@@ -706,9 +706,6 @@ M.core_filepicker.init = function(Y, options) {
                             scope.options.editor_target.value = data.existingfile.url;
                             scope.options.editor_target.onchange();
                         }
-                        // RL EDIT: BJB130215
-                        // Do a scope callback for elis files after overwrite
-                        if (scope.options.env !== 'filepicker' && data.duplicateelisfiles !== undefined) {
                         var fileinfo = {'client_id':scope.options.client_id,
                                 'url':data.existingfile.url,
                                 'file':data.existingfile.filename};
@@ -807,17 +804,15 @@ M.core_filepicker.init = function(Y, options) {
                 this.process_dlg_node = Y.Node.createWithFilesSkin(M.core_filepicker.templates.processexistingfile);
                 var node = this.process_dlg_node;
                 node.generateID();
-                this.process_dlg = new Y.Panel({
-                    srcNode      : node,
+                this.process_dlg = new M.core.dialogue({
+                    draggable    : true,
+                    bodyContent  : node,
                     headerContent: M.str.repository.fileexistsdialogheader,
-                    zIndex       : 8000,
                     centered     : true,
                     modal        : true,
                     visible      : false,
-                    render       : true,
-                    buttons      : {}
+                    zIndex       : this.options.zIndex
                 });
-                this.process_dlg.plug(Y.Plugin.Drag,{handles:['#'+node.get('id')+' .yui3-widget-hd']});
                 node.one('.fp-dlg-butoverwrite').on('click', handleOverwrite, this);
                 node.one('.fp-dlg-butrename').on('click', handleRename, this);
                 node.one('.fp-dlg-butcancel').on('click', handleCancel, this);
@@ -850,15 +845,14 @@ M.core_filepicker.init = function(Y, options) {
                 this.msg_dlg_node = Y.Node.createWithFilesSkin(M.core_filepicker.templates.message);
                 this.msg_dlg_node.generateID();
 
-                this.msg_dlg = new Y.Panel({
-                    srcNode      : this.msg_dlg_node,
-                    zIndex       : 8000,
+                this.msg_dlg = new M.core.dialogue({
+                    draggable    : true,
+                    bodyContent  : this.msg_dlg_node,
                     centered     : true,
                     modal        : true,
                     visible      : false,
-                    render       : true
+                    zIndex       : this.options.zIndex
                 });
-                this.msg_dlg.plug(Y.Plugin.Drag,{handles:['#'+this.msg_dlg_node.get('id')+' .yui3-widget-hd']});
                 this.msg_dlg_node.one('.fp-msg-butok').on('click', function(e) {
                     e.preventDefault();
                     this.msg_dlg.hide();
@@ -886,7 +880,7 @@ M.core_filepicker.init = function(Y, options) {
             } else {
                 this.view_as_icons(appenditems);
             }
-            this.fpnode.one('.fp-content').setAttribute('tabIndex', '0');
+            this.fpnode.one('.fp-content').setAttribute('tabindex', '0');
             this.fpnode.one('.fp-content').focus();
             // display/hide the link for requesting next page
             if (!appenditems && this.active_repo.hasmorepages) {
@@ -1171,7 +1165,6 @@ M.core_filepicker.init = function(Y, options) {
                 argstitle = argstitle.substring(0, titlelength) + '...';
             }
             Y.one('#fp-file_label_'+this.options.client_id).setContent(Y.Escape.html(M.str.repository.select+' '+argstitle));
-
             this.selectui.show();
             Y.one('#'+this.selectnode.get('id')).focus();
             var client_id = this.options.client_id;
@@ -1405,28 +1398,21 @@ M.core_filepicker.init = function(Y, options) {
             var fpid = "filepicker-"+ client_id;
             var labelid = 'fp-dialog-label_'+ client_id;
             this.fpnode = Y.Node.createWithFilesSkin(M.core_filepicker.templates.generallayout).
-                set('id', fpid).set('aria-labelledby', labelid);
-
-            this.mainui = new Y.Panel({
-                srcNode      : this.fpnode,
+                set('id', 'filepicker-'+client_id).set('aria-labelledby', labelid);
+            this.mainui = new M.core.dialogue({
+                extraClasses : ['filepicker'],
+                draggable    : true,
+                bodyContent  : this.fpnode,
                 headerContent: '<span id="'+ labelid +'">'+ M.str.repository.filepicker +'</span>',
-                zIndex       : 7500,
                 centered     : true,
                 modal        : true,
                 visible      : false,
-                minWidth     : this.fpnode.getStylePx('minWidth'),
-                minHeight    : this.fpnode.getStylePx('minHeight'),
-                maxWidth     : this.fpnode.getStylePx('maxWidth'),
-                maxHeight    : this.fpnode.getStylePx('maxHeight'),
-                render       : true
+                width        : '873px',
+                responsiveWidth : 873,
+                height       : '558px',
+                zIndex       : this.options.zIndex
             });
 
-            // allow to move the panel dragging it by it's header:
-            this.mainui.plug(Y.Plugin.Drag,{handles:['#filepicker-'+client_id+' .yui3-widget-hd']});
-            this.mainui.show();
-            if (this.mainui.get('y') < 0) {
-                this.mainui.set('y', 0);
-            }
             // create panel for selecting a file (initially hidden)
             this.selectnode = Y.Node.createWithFilesSkin(M.core_filepicker.templates.selectlayout).
                 set('id', 'filepicker-select-'+client_id).
@@ -1434,19 +1420,17 @@ M.core_filepicker.init = function(Y, options) {
                 set('role', 'dialog');
 
             var fplabel = 'fp-file_label_'+ client_id;
-            this.selectui = new Y.Panel({
+            this.selectui = new M.core.dialogue({
                 headerContent: '<span id="' + fplabel +'">'+M.str.repository.select+'</span>',
-                srcNode      : this.selectnode,
-                zIndex       : 7600,
+                draggable    : true,
+                width        : '450px',
+                bodyContent  : this.selectnode,
                 centered     : true,
                 modal        : true,
-                close        : true,
-                render       : true
+                visible      : false,
+                zIndex       : this.options.zIndex
             });
-            // allow to move the panel dragging it by it's header:
-            this.selectui.plug(Y.Plugin.Drag,{handles:['#filepicker-select-'+client_id+' .yui3-widget-hd']});
             Y.one('#'+this.selectnode.get('id')).setAttribute('aria-labelledby', fplabel);
-            this.selectui.hide();
             // event handler for lazy loading of thumbnails and next page
             this.fpnode.one('.fp-content').on(['scroll','resize'], this.content_scrolled, this);
             // save template for one path element and location of path bar
@@ -1510,6 +1494,7 @@ M.core_filepicker.init = function(Y, options) {
                 this.display_error(M.str.repository.norepositoriesavailable, 'norepositoriesavailable')
             }
             // display repository that was used last time
+            this.mainui.show();
             this.show_recent_repository();
 
             // RL EDIT: BJB130215 - close the advanced search dialog when the file picker closes
@@ -2350,10 +2335,6 @@ M.core_filepicker.init = function(Y, options) {
 
             // login button
             enable_tb_control(toolbar.one('.fp-tb-logout'), !r.nologin);
-            if (!r.nologin) {
-                var label = r.logouttext ? r.logouttext : M.str.repository.logout;
-                toolbar.one('.fp-tb-logout').one('a,button').setContent(label)
-            }
 
             // RL EDIT: BJB130215
             // showing an advanced and execute search icons

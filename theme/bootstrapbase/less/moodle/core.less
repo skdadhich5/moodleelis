@@ -29,11 +29,6 @@
     width:100%;
 }
 
-.fluid-span (@columns) {
-    width: (@fluidGridColumnWidth * @columns) + (@fluidGridGutterWidth * (@columns - 1));
-    *width: (@fluidGridColumnWidth * @columns) + (@fluidGridGutterWidth * (@columns - 1)) - (.5 / @gridRowWidth * 100 * 1%);
-}
-
 .empty-region-side-post.used-region-side-pre #region-main.span8 {
     /** increase the span size by 1 **/
     .fluid-span(9);
@@ -147,6 +142,29 @@ a.autolink.glossary:hover {
 .jsenabled .collapsed .collapsibleregioninner {
     visibility: hidden;
 }
+.collapsible-actions {
+    display: none;
+    text-align: right;
+}
+.dir-rtl .collapsible-actions {
+    text-align: left;
+}
+.jsenabled .collapsible-actions {
+    display: block;
+}
+.collapsible-actions .collapseexpand {
+    padding-left: 20px;
+    background: url([[pix:t/collapsed]]) 2px center no-repeat;
+}
+.dir-rtl .collapsible-actions .collapseexpand {
+    padding-right: 20px;
+    padding-left: 0;
+    background: url([[pix:t/collapsed_rtl]]) right center no-repeat;
+}
+.collapsible-actions .collapse-all,
+.dir-rtl .collapsible-actions .collapse-all {
+    background-image: url([[pix:t/expanded]]);
+}
 .yui-overlay .yui-widget-bd {
     background-color: #FFEE69;
     border: 1px solid #A6982B;
@@ -171,8 +189,7 @@ a.autolink.glossary:hover {
 .warning,
 .errorbox .title,
 .pagingbar .title,
-.pagingbar .thispage,
-.headingblock {
+.pagingbar .thispage {
     font-weight: bold;
 }
 img.resize {
@@ -206,6 +223,15 @@ img.iconhelp, .helplink img {
     padding-left: 3px;
     vertical-align: text-bottom;
     width: 16px;
+}
+h1 img.iconhelp, h1 img.icon,
+h2 img.iconhelp, h2 img.icon,
+h3 img.iconhelp, h3 img.icon,
+h4 img.iconhelp, h4 img.icon,
+h5 img.iconhelp, h5 img.icon,
+h6 img.iconhelp, h6 img.icon {
+  vertical-align: middle;
+  padding: 4px;
 }
 .dir-rtl img.iconhelp, .dir-rtl .helplink img {
     padding-right: 3px;
@@ -300,9 +326,7 @@ form.popupform div {
     vertical-align: text-bottom;
     margin: 0 0.3em;
 }
-.main img {
-    vertical-align: middle;
-}
+
 /** The 1-pixel padding is there to avoid phantom scroll bars on OS X (FF, Safari and Chrome)**/
 .no-overflow {
     overflow: auto;
@@ -416,8 +440,11 @@ a.skip:active {
 .groupselector {
     margin-top: 3px;
     margin-bottom: 3px;
+    display: inline-block;
 }
-
+.groupselector label {
+    display: inline-block;
+}
 // Login
 .loginbox {
     margin: 15px;
@@ -436,6 +463,7 @@ a.skip:active {
     margin: 0;
     padding: 0;
     margin-bottom: 5px;
+    margin-top:15px;
 }
 .loginbox .signuppanel .subcontent {
     text-align: left;
@@ -1134,113 +1162,60 @@ body.tag .managelink {
     top: 50%;
     left: 50%;
 }
+
+.mod-indent-outer {
+    display: table;
+}
+.mod-indent {
+    display: table-cell;
+}
 .mod-indent-1 {
-    margin-left: 30px;
+    width: 30px;
 }
 .mod-indent-2 {
-    margin-left: 60px;
+    width: 60px;
 }
 .mod-indent-3 {
-    margin-left: 90px;
+    width: 90px;
 }
 .mod-indent-4 {
-    margin-left: 120px;
+    width: 120px;
 }
 .mod-indent-5 {
-    margin-left: 150px;
+    width: 150px;
 }
 .mod-indent-6 {
-    margin-left: 180px;
+    width: 180px;
 }
 .mod-indent-7 {
-    margin-left: 210px;
+    width: 210px;
 }
 .mod-indent-8 {
-    margin-left: 240px;
+    width: 240px;
 }
 .mod-indent-9 {
-    margin-left: 270px;
+    width: 270px;
 }
 .mod-indent-10 {
-    margin-left: 300px;
+    width: 300px;
 }
 .mod-indent-11 {
-    margin-left: 330px;
+    width: 330px;
 }
 .mod-indent-12 {
-    margin-left: 360px;
+    width: 360px;
 }
 .mod-indent-13 {
-    margin-left: 390px;
+    width: 390px;
 }
 .mod-indent-14 {
-    margin-left: 420px;
+    width: 420px;
 }
 .mod-indent-15,
 .mod-indent-huge {
-    margin-left: 420px;
+    width: 420px;
 }
-.dir-rtl .mod-indent-1 {
-    margin-right: 30px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-2 {
-    margin-right: 60px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-3 {
-    margin-right: 90px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-4 {
-    margin-right: 120px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-5 {
-    margin-right: 150px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-6 {
-    margin-right: 180px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-7 {
-    margin-right: 210px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-8 {
-    margin-right: 240px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-9 {
-    margin-right: 270px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-10 {
-    margin-right: 300px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-11 {
-    margin-right: 330px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-12 {
-    margin-right: 360px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-13 {
-    margin-right: 390px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-14 {
-    margin-right: 420px;
-    margin-left: 0;
-}
-.dir-rtl .mod-indent-15,
-.dir-rtl .mod-indent-huge {
-    margin-right: 420px;
-    margin-left: 0;
-}
+
 /* Audio player size in 'block' mode (can only change width, height is hardcoded in JS) */
 .resourcecontent .mediaplugin_mp3 object {
     height: 25px;
@@ -1385,8 +1360,11 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
     white-space: nowrap;
     text-align: center;
 }
-.initialbar a {
-    padding-right: 2px;
+.initialbar {
+    a, strong {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
 }
 /* Moodle Dialogue Settings (moodle-core-dialogue)  */
 .moodle-dialogue-base .moodle-dialogue-lightbox {
@@ -1395,6 +1373,24 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
 .moodle-dialogue-base .hidden,
 .moodle-dialogue-base .moodle-dialogue-hidden {
     display: none;
+}
+.no-scrolling {
+    overflow: hidden;
+}
+.moodle-dialogue-base .moodle-dialogue-fullscreen {
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: -50px;
+    position: fixed;
+}
+.moodle-dialogue-base .moodle-dialogue-fullscreen .moodle-dialogue-content {
+    overflow: auto;
+}
+.moodle-dialogue-base .moodle-dialogue-fullscreen .closebutton {
+    width: 28px;
+    height: 16px;
+    background-size: 100%;
 }
 .moodle-dialogue-base .moodle-dialogue {
     padding: 0;
@@ -1412,7 +1408,8 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
     .border-radius(10px);
     .box-shadow(5px 5px 20px 0 #666);
 }
-.moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-hd {
+.moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-hd,
+.moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-hd.yui3-widget-hd {
     margin: 0;
     padding: 5px;
     font-size: 12px;
@@ -1425,7 +1422,7 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
     border-bottom: 1px solid #bbb;
     background: #ccc;
     #gradient > .vertical(#fff, #ccc);
-    filter: dropshadow(color=#FFFFFF, offx=1, offy=1);
+    filter: 0;
 }
 .moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-hd h1 {
     margin: 0;
@@ -1454,7 +1451,6 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
     right: auto;
 }
 .moodle-dialogue-base .moodle-dialogue .moodle-dialogue-bd {
-    overflow: auto;
     padding: 1em;
     line-height: 2em;
     color: #555;
@@ -1463,6 +1459,26 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
 .moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-content {
     padding: 0;
     background: #FFF;
+}
+
+.moodle-dialogue-base .moodle-dialogue-fullscreen .moodle-dialogue-hd {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.moodle-dialogue-base .moodle-dialogue-fullscreen .moodle-dialogue-content {
+    overflow: auto;
+    position: absolute;
+    top: 0px;
+    bottom: 50px;
+    left: 0px;
+    right: 0px;
+    margin: 0px;
+    border: 0px;
+}
+.moodle-dialogue-base .moodle-dialogue-fullscreen .moodle-dialogue-hd,
+.moodle-dialogue-base .moodle-dialogue-fullscreen .moodle-dialogue-wrap {
+    border-radius: 0px;
 }
 .moodle-dialogue-confirm .confirmation-dialogue {
     text-align: center;
@@ -1561,6 +1577,10 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
 
 .moodle-dialogue-base .moodle-dialogue.moodle-dialogue-tooltip {
     z-index: 3001;
+
+    .moodle-dialogue-bd {
+        overflow: auto;
+    }
 }
 
 /* Question Bank - Question Chooser "Close" button */
@@ -1589,7 +1609,7 @@ body#page-lib-editor-tinymce-plugins-moodlemedia-preview {
 }
 /* Center the submit buttons within the area */
 .choosercontainer #chooseform .submitbuttons {
-    margin: 0.7em 0;
+    padding: 0.7em 0;
     text-align: center;
 }
 .choosercontainer #chooseform .submitbuttons input {
@@ -1825,6 +1845,12 @@ table.badgeissuedinfo .bfield {
     text-align: left;
     font-style: italic;
 }
+.dir-rtl {
+    table.badgeissuedinfo .bvalue,
+    table.badgeissuedinfo .bfield {
+        text-align: right;
+    }
+}
 ul.badges {
     margin: 0;
     list-style: none;
@@ -1911,6 +1937,9 @@ div.badge .expireimage {
     text-align: left;
     vertical-align: middle;
 }
+.dir-rtl .activatebadge {
+    text-align: right;
+}
 img#persona_signin {
     cursor: pointer;
 }
@@ -1937,6 +1966,202 @@ img#persona_signin {
     margin: 0;
 }
 
-body.bodynoheader {
-  padding-top: 0;
+/** Action menu component styles **/
+.moodle-actionmenu,
+.moodle-actionmenu > ul,
+.moodle-actionmenu > ul > li {
+    display: inline-block;
+}
+
+.moodle-actionmenu ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.moodle-actionmenu .toggle-display,
+.moodle-actionmenu .menu-action-text {
+    display: none; /** Hidden by default, display none so that we don't take up space. **/
+}
+
+.jsenabled {
+    .moodle-actionmenu[data-enhance] {
+        display: block;
+        .menu {
+            display:none;
+        }
+        .toggle-display {
+            display: inline; /** JS is enabled, we'll be using it so return display to normal **/
+            .opacity(50);
+        }
+        .toggle-display.textmenu {
+            display: block;
+            margin-left: 4px;
+            padding-left: 4px;
+            padding-right: 4px;
+
+            .iconsmall {
+                margin: 4px 4px 4px 0px;
+                padding: 8px 4px 0px 2px;
+                vertical-align: text-bottom;
+            }
+
+            .caret {
+                margin-top: 8px;
+                margin-left: 2px;
+                border-top-color: @navbarLinkColor;
+                &:hover,
+                &:active {
+                    border-top-color: @navbarLinkColorActive;
+                }
+            }
+        }
+    }
+    .moodle-actionmenu[data-enhanced] {
+        .toggle-display {
+            .opacity(100);
+        }
+        .menu-action-text  {
+            display:inline;
+        }
+    }
+
+    &.dir-rtl {
+        .moodle-actionmenu[data-enhance] {
+            .toggle-display.textmenu {
+                margin-left: initial;
+                margin-right: 4px;
+
+                .caret {
+                    margin-left: initial;
+                    margin-right: 2px;
+                }
+            }
+        }
+    }
+}
+
+.moodle-actionmenu[data-enhanced].show  {
+
+    position: relative;
+
+    .menu {
+
+        display:block;
+        position: absolute;
+        text-align: left;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        z-index:1000;
+        .border-radius(5px);
+        .box-shadow(5px 5px 20px 0 #666);
+
+        a {
+            display: block;
+            color: @dropdownLinkColor;
+            padding:2px 1em 2px 28px;
+            &:hover {
+                color: @dropdownLinkColorHover;
+                background-color: @dropdownLinkBackgroundHover;
+            }
+            &:first-child {
+                .border-top-radius(4px);
+            }
+            &:last-child {
+                .border-bottom-radius(4px);
+            }
+        }
+        a.hidden {
+            display:none;
+        }
+        img {
+            vertical-align: middle;
+        }
+        .iconsmall {
+            margin: 4px 4px 4px -24px;
+        }
+        > li {
+            display:block;
+        }
+
+        /** bottom left of button **/
+        &.align-tl-bl {top: 100%;left:0;margin-top: 4px;}
+        &.align-tr-bl {top: 100%;right: 100%;}
+        &.align-bl-bl {bottom: 100%;left:0;}
+        &.align-br-bl {bottom: 100%;right: 100%;}
+        /** bottom right of button **/
+        &.align-tl-br {top: 100%;left:100%;}
+        &.align-tr-br {top: 100%;right: 0;margin-top: 4px;}
+        &.align-bl-br {bottom: 100%;left:100%;}
+        &.align-br-br {bottom: 100%;right: 0;}
+        /** top left of button **/
+        &.align-tl-tl {top: 0;left:0;}
+        &.align-tr-tl {top: 0;right: 100%;margin-right: 4px;}
+        &.align-bl-tl {bottom: 100%;left:0;margin-bottom: 4px;}
+        &.align-br-tl {bottom: 100%;right: 100%;}
+        /** top right of button **/
+        &.align-tl-tr {top: 0;left:100%;margin-left: 4px;}
+        &.align-tr-tr {top: 0;right: 0;}
+        &.align-bl-tr {bottom: 100%;left:100%;}
+        &.align-br-tr {bottom: 100%;right: 0;margin-bottom: 4px;}
+    }
+}
+
+.block .moodle-actionmenu {
+    text-align: right;
+}
+
+.dir-rtl {
+    .moodle-actionmenu[data-enhanced].show  {
+        .menu {
+            text-align: right;
+            left: 0;
+            right: auto;
+            .iconsmall {
+                margin-right:0;
+                margin-left:8px;
+            }
+
+            /** bottom left of button **/
+            &.align-tl-bl {left: auto; right: 0;}
+            &.align-tr-bl {right: auto; left: 100%;}
+            &.align-bl-bl {left: auto; right: 0;}
+            &.align-br-bl {right: auto; left: 100%;}
+            /** bottom right of button **/
+            &.align-tl-br {left: auto; right: 100%;}
+            &.align-tr-br {right: auto; left: 0;}
+            &.align-bl-br {left: auto; right: 100%;}
+            &.align-br-br {right: auto; left: 0;}
+            /** top left of button **/
+            &.align-tl-tl {left: auto; right: 0;}
+            &.align-tr-tl {right: auto; left: 100%;}
+            &.align-bl-tl {left: auto; right: 0;}
+            &.align-br-tl {right: auto; left: 100%;}
+            /** top right of button **/
+            &.align-tl-tr {left: auto; right: 100%;}
+            &.align-tr-tr {right: auto; left: 0;}
+            &.align-bl-tr {left: auto; right: 100%;}
+            &.align-br-tr {right: auto; left: 0;}
+        }
+    }
+    .block .moodle-actionmenu {
+        text-align: right;
+    }
+}
+
+ul.dragdrop-keyboard-drag li {
+    list-style-type: none;
+}
+
+.block-control-actions .moodle-core-dragdrop-draghandle img {
+    width: 12px;
+    height: 12px;
+}
+
+a.disabled:hover,
+a.disabled {
+    text-decoration: none;
+    cursor: default;
+    font-style: italic;
+    color: #808080;
 }
