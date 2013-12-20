@@ -32,7 +32,9 @@ require_once(elis::lib('data/data_object_with_custom_fields.class.php'));
 require_once(elispm::lib('contexts.php'));
 require_once(elispm::lib('data/clusterassignment.class.php'));
 require_once(elispm::lib('data/clustercurriculum.class.php'));
-require_once(elis::plugin_file('usersetenrol_moodle_profile', 'userset_profile.class.php'));
+//require_once(elis::plugin_file('usersetenrol_moodle_profile', 'userset_profile.class.php'));
+//updated by sdadhich 
+require_once($CFG->dirroot.'/elis/program/enrol/userset/moodle_profile/userset_profile.class.php');
 
 class userset extends data_object_with_custom_fields {
     const TABLE = 'crlm_cluster';

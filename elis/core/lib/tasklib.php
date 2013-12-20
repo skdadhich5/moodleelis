@@ -46,7 +46,7 @@ function elis_tasks_load_def($component) {
     //    $defpath = $CFG->libdir.'/simpletest/fixtures/tasks.php';
 
     } else {
-        $defpath = get_component_directory($component) .'/db/tasks.php';
+        $defpath = core_component::get_component_directory($component) .'/db/tasks.php';
         //error_log("/elis/core/lib/tasklib.php::elis_tasks_load_def('{$component}') looking for: {$defpath}");
     }
 

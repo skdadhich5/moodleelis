@@ -33,7 +33,9 @@ require_once(elispm::lib('data/clustercurriculum.class.php'));
 require_once(elispm::lib('data/userset.class.php'));
 require_once(elispm::lib('contexts.php'));
 require_once(elispm::file('form/usersetform.class.php'));
-require_once(elis::plugin_file('usersetenrol_manual', 'usersetassignmentpage.class.php'));
+//require_once(elis::plugin_file('usersetenrol_manual', 'usersetassignmentpage.class.php'));
+//updated by sdadhich 
+require_once($CFG->dirroot.'/elis/program/enrol/userset/manual/usersetassignmentpage.class.php');
 
 /**
  * Page to manage user subsets.
