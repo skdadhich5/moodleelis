@@ -13,7 +13,7 @@ class resultsconfigpage extends pm_page {
     private $customdata = array();
 
     function can_do_default() {
-        $context = get_context_instance(CONTEXT_SYSTEM);
+        $context = context_system::instance();
         return has_capability('elis/program:config', $context);
     }
 

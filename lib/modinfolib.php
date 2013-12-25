@@ -494,7 +494,7 @@ class course_modinfo {
         if ($course->id == $COURSE->id || $course->id == $SITE->id) {
             // Only verify current course (or frontpage) as pages with many courses may not have module contexts cached.
             // (Uncached modules will result in a very slow verification).
-            foreach ($info as $mod) {
+            /*foreach ($info as $mod) {
                 if (!context_module::instance($mod->cm, IGNORE_MISSING)) {
                     debugging('Course cache integrity check failed: course module with id '. $mod->cm.
                             ' does not have context. Rebuilding cache for course '. $course->id);
@@ -504,7 +504,7 @@ class course_modinfo {
                     $sectioncache = unserialize($this->course->sectioncache);
                     break;
                 }
-            }
+            }*/
         }
 
         // Loop through each piece of module data, constructing it

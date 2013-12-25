@@ -526,7 +526,7 @@ function cluster_get_listing($sort='name', $dir='ASC', $startrec=0, $perpage=0, 
     global $USER, $DB;
 
     //require plugin code if enabled
-    $plugins = get_plugin_list('pmplugins');
+    $plugins = core_component::get_plugin_list('pmplugins');
     $display_priority_enabled = isset($plugins['userset_display_priority']);
     if ($display_priority_enabled) {
         require_once(elis::plugin_file('pmplugins_userset_display_priority', 'lib.php'));

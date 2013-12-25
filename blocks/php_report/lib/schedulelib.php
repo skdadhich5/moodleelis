@@ -622,7 +622,7 @@ class scheduling_page extends workflowpage {
     public function can_do_list() {
         global $CFG, $USER;
 
-        if (has_capability('block/php_report:manageschedules', get_context_instance(CONTEXT_SYSTEM))) {
+        if (has_capability('block/php_report:manageschedules', context_system::instance())) {
             //user can manage schedules globally, so allow access
             return true;
         }
