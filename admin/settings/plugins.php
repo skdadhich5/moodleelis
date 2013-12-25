@@ -498,7 +498,7 @@ if ($hassiteconfig) {
 $ADMIN->add('root', new admin_category('elis', get_string('elis', 'elis_core')));
 // Now add ELIS plugins
 
-foreach (get_plugin_list('elis') as $plugin => $plugindir) {
+foreach (core_component::get_plugin_list('elis') as $plugin => $plugindir) {
     $settings_path = "$plugindir/settings.php";
     if (file_exists($settings_path)) {
         include($settings_path);
