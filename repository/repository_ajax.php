@@ -77,6 +77,8 @@ $repooptions = array(
     'ajax' => true,
     'mimetypes' => $accepted_types
 );
+
+ajax_capture_output();
 $repo = repository::get_repository_by_id($repo_id, $contextid, $repooptions);
 
 // Check permissions
@@ -106,6 +108,7 @@ switch ($action) {
             }
             // End RL EDIT
             $listing['repo_id'] = $repo_id;
+            ajax_check_captured_output();
             echo json_encode($listing);
             break;
         } else {
@@ -114,17 +117,20 @@ switch ($action) {
     case 'login':
         $listing = $repo->print_login();
         $listing['repo_id'] = $repo_id;
+        ajax_check_captured_output();
         echo json_encode($listing);
         break;
     case 'logout':
         $logout = $repo->logout();
         $logout['repo_id'] = $repo_id;
+        ajax_check_captured_output();
         echo json_encode($logout);
         break;
     case 'searchform':
         $search_form['repo_id'] = $repo_id;
         $search_form['form'] = $repo->print_search();
         $search_form['allowcaching'] = true;
+        ajax_check_captured_output();
         // RL EDIT: BJB130301 ELIS-8326 (Kaltura)
         $search_form['tree'] = method_exists($repo, 'category_tree') ? $repo->category_tree() : array();
         // End RL EDIT
@@ -139,6 +145,7 @@ switch ($action) {
         // End RL EDIT
         $search_result['repo_id'] = $repo_id;
         $search_result['issearchresult'] = true;
+        ajax_check_captured_output();
         echo json_encode($search_result);
         break;
     case 'download':
@@ -181,6 +188,7 @@ switch ($action) {
             $info['file'] = $saveas_filename;
             $info['type'] = 'link';
             $info['url'] = $link;
+            ajax_check_captured_output();
             echo json_encode($info);
             die;
         } else {
@@ -272,6 +280,7 @@ switch ($action) {
                 // You can cache reository file in this callback
                 // or complete other tasks.
                 $repo->cache_file_by_reference($reference, $storedfile);
+                ajax_check_captured_output();
                 echo json_encode($event);
                 die;
             } else if ($repo->has_moodle_files()) {
@@ -282,6 +291,7 @@ switch ($action) {
                 // {@link repository::copy_to_area()}.
                 $fileinfo = $repo->copy_to_area($reference, $record, $maxbytes, $areamaxbytes);
 
+                ajax_check_captured_output();
                 // RL EDIT: BJB130215 - ELIS Files (alfresco)
                 $decodedsrc = unserialize(base64_decode($source));
                 // error_log("repository_ajax.php::download (IV): saveas_path = {$saveas_path}, toelisfiles = {$toelisfiles}");
@@ -398,6 +408,7 @@ switch ($action) {
                     $info['e'] = get_string('error', 'moodle');
                 }
             }
+            ajax_check_captured_output();
             echo json_encode($info);
             die;
         }
@@ -408,6 +419,7 @@ switch ($action) {
         $elis_files_exists = file_exists($CFG->dirroot.'/repository/elis_files/lib/lib.php');
         if (method_exists($repo, 'upload')) {
         $result = $repo->upload($saveas_filename, $maxbytes);
+        ajax_check_captured_output();
         } else if ($elis_files_exists) {
             require_once($CFG->dirroot.'/repository/elis_files/lib/lib.php');
             $decodedpath = unserialize(base64_decode($saveas_path));
@@ -596,6 +608,7 @@ switch ($action) {
         } else {
             // moving the file within the Moodle file area
         $info = repository::overwrite_existing_draftfile($itemid, $filepath, $filename, $newfilepath, $newfilename);
+        ajax_check_captured_output();
         }
         // End RL EDIT
         echo json_encode($info);
@@ -605,6 +618,7 @@ switch ($action) {
         // delete tmp file
         $newfilepath = required_param('newfilepath', PARAM_PATH);
         $newfilename = required_param('newfilename', PARAM_FILE);
+        ajax_check_captured_output();
         echo json_encode(repository::delete_tempfile_from_draft($itemid, $newfilepath, $newfilename));
 
         break;

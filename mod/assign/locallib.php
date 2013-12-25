@@ -451,8 +451,8 @@ class assign {
                 // Save changes button.
                 $action = 'grade';
                 if ($this->process_save_grade($mform)) {
-                    $message = get_string('gradingchangessaved', 'assign');
-                    $action = 'savegradingresult';
+                    $action = 'redirect';
+                    $nextpageparams['action'] = 'savegradingresult';
                 }
             } else {
                 // Cancel button.
@@ -488,6 +488,7 @@ class assign {
             redirect($nextpageurl);
             return;
         } else if ($action == 'savegradingresult') {
+            $message = get_string('gradingchangessaved', 'assign');
             $o .= $this->view_savegrading_result($message);
         } else if ($action == 'quickgradingresult') {
             $mform = null;
@@ -2861,7 +2862,9 @@ class assign {
                                                   $this->get_course_module()->id,
                                                   $this->get_return_action(),
                                                   $this->get_return_params(),
-                                                  true);
+                                                  true,
+                                                  $useridlistid,
+                                                  $rownum);
 
             $o .= $this->get_renderer()->render($history);
         }
@@ -3719,7 +3722,9 @@ class assign {
                                                       $this->get_course_module()->id,
                                                       $this->get_return_action(),
                                                       $this->get_return_params(),
-                                                      false);
+                                                      false,
+                                                      0,
+                                                      0);
 
                 $o .= $this->get_renderer()->render($history);
             }
@@ -4233,7 +4238,7 @@ class assign {
 
         $graders = array();
         if (groups_get_activity_groupmode($this->get_course_module()) == SEPARATEGROUPS) {
-            if ($groups = groups_get_all_groups($this->get_course()->id, $userid)) {
+            if ($groups = groups_get_all_groups($this->get_course()->id, $userid, $this->get_course_module()->groupingid)) {
                 foreach ($groups as $group) {
                     foreach ($potentialgraders as $grader) {
                         if ($grader->id == $userid) {
@@ -5179,7 +5184,7 @@ class assign {
     protected function process_copy_previous_attempt(&$notices) {
         require_sesskey();
 
-        return copy_previous_attempt($notices);
+        return $this->copy_previous_attempt($notices);
     }
 
     /**
