@@ -3782,7 +3782,7 @@ class settings_navigation extends navigation_node {
         }
 
         // RL EDIT: BJB130215
-        $systemcontext = get_system_context();
+        $systemcontext = context_system::instance();
         $systemcapabilities = array(
             'repository/elis_files:viewsitecontent',
             'repository/elis_files:createsitecontent',

@@ -220,7 +220,7 @@ class enrol_imsenterprise_plugin extends enrol_plugin {
         }
 
     }
-
+}
     /**
      * Check if a complete tag is found in the cached data, which usually happens
      * when the end of the tag has only just been loaded into the cache.
@@ -269,7 +269,7 @@ class enrol_imsenterprise_plugin extends enrol_plugin {
         $this->log_line('Notification email sent to administrator.');
 
     }
-
+}
     /**
      * Remove complete tag from the cached data (including all its contents) - so
      * that the cache doesn't grow to unmanageable size
@@ -836,3 +836,4 @@ class enrol_imsenterprise_plugin extends enrol_plugin {
         return $defaultcategoryid;
     }
 }
+

@@ -63,7 +63,7 @@ class enrol_elis_plugin extends enrol_plugin {
              throw new coding_exception('Invalid enrol instance type!');
         }
 
-        $context = get_context_instance(CONTEXT_COURSE, $instance->courseid);
+        $context = context_course::instance($instance->courseid);
         if (has_capability('enrol/elis:config', $context)) {
             $managelink = new moodle_url('/enrol/elis/edit.php', array('courseid'=>$instance->courseid));
             $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);
