@@ -35,7 +35,11 @@
 
 require_once(dirname(dirname(__FILE__)) . '/config.php');
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/pluginlib.php');
 require_once($CFG->libdir . '/filelib.php');
+
+admin_externalpage_setup('pluginsoverview');
+require_capability('moodle/site:config', context_system::instance());
 
 $fetchremote = optional_param('fetchremote', false, PARAM_BOOL);
 $updatesonly = optional_param('updatesonly', false, PARAM_BOOL);
@@ -43,6 +47,8 @@ $contribonly = optional_param('contribonly', false, PARAM_BOOL);
 $uninstall   = optional_param('uninstall', '', PARAM_COMPONENT);
 $delete      = optional_param('delete', '', PARAM_COMPONENT);
 $confirmed   = optional_param('confirm', false, PARAM_BOOL);
+
+$output = $PAGE->get_renderer('core', 'admin');
 $return      = optional_param('return', 'overview', PARAM_ALPHA);
 
 // NOTE: do not use admin_externalpage_setup() here because it loads
